@@ -1,0 +1,79 @@
+
+@import "variables";
+@import "mixins";
+
+
+
+/* FONT
+===============================================================================================
+=============================================================================================== */
+@font-face{
+    font-family: 'YOUR_NAME';
+    src: url(PATH) format('truetype');
+}
+
+// ... tutti i font-face che vuoi ...
+
+@font-face{
+    font-family: 'YOUR_NAME';
+    src: url(PATH) format('truetype');
+}
+
+
+
+/* REGOLE DI STILE ( DIPENDENTI DAL PROGETTO )
+===============================================================================================
+=============================================================================================== */
+
+.myEditor{
+    width: 70%;
+    margin: auto;
+    @include boxShadow(0 0 3px #222222);
+    @include borderRadius(3px);
+
+    &>.myToolbar{
+        background-color: #555555;
+
+        &>div{
+            display: inline-block;
+            padding: 5px 7px;
+
+            &>ul{
+                display: inline-block;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+
+                &>li{
+                    list-style: none;
+                    float: left;
+                    padding: 0 5px;
+                    background-color: #eeeeee;
+                    border: 1px solid #bbbbbb;
+                    cursor: pointer;
+                    max-height: 20px; /* in modo che il <sub> non faccia sforare i bottoni per l'header' */
+
+
+                    &:first-of-type{
+                        @include borderRadius(3px 0 0 3px);
+                    }
+
+                    &:last-of-type{
+                        @include borderRadius(0 3px 3px 0);
+                    }
+
+                    &:hover{
+                        background-color: #cccccc;
+                    }
+                }
+            }
+        }
+    } /* FINE .myToolbar*/
+
+    &>.myEditorTextArea{
+        padding: 5px;
+        min-height: 400px;
+    } /* FINE .myEditorTextArea*/
+} /* FINE .myEditor*/
+
+

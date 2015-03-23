@@ -1,0 +1,43 @@
+
+// STATO DEL PROGETTO
+// =============================================================================
+// =============================================================================
+
+C'è da sistemare la funzione che mette la selezione sotto il tag <code>.
+Così non va bene perchè:
+    1) elimina la selezione quando dovrebbe lasciarla intatta
+    2) se il testo è già racchiuso in un tag, ad esempio <b>, dovrebbe fare
+       <code><b>testo</b></code> invece fa <b><code>testo</code></b>
+
+Nella rete c'è molto pessimismo riguardo la possibilità che in futuro
+excecCommand() funzioni bene ed in modo uguale su tutti i browser.
+Perciò non si trovano molte informazioni.
+
+Provare l'editor su chrome e vedere in particolare come si comporta "formatblock"
+
+
+
+
+// DA FARE
+// =============================================================================
+// =============================================================================
+
+- Inserire anche il bottone per il colore del font e quello di sfondo ( sono commentate )
+- gestire meglio i bottoni per l'inserimento del link e dell'immagine.
+  Così com'è ora il bottone per il link trasforma il testo selezionato in un
+  link predefinito ( che ho messo a mano nel file .js ). Mentre sarebbe meglio
+  se alla sua pressione comparisse una finestra che chiede di inserire il link
+  ed il nome con il quale mostrarlo nell'editor.
+  Andrebbe bene anche solo la finestra che chiede il link. In questo modo il
+  nome sarà il testo selezionato nell'editor.
+  Anche per l'immagine vogliamo che compaia una finestra in cui si può scegliere
+  tra le immagini del server oppure una URL esterna.
+
+
+
+
+
+
+
+
+
