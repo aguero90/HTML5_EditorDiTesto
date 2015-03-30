@@ -25,10 +25,74 @@
 ===============================================================================================
 =============================================================================================== */
 
+#imageSelectionPopup, #linkInsertPopup{
+    position: fixed;
+    top: -100%;
+    width: 100%;
+    height: 100%;
+    @include transition(transform 1.5s ease);
+
+    &.show{
+        @include transform(translate3d(0, 100%, 0)); // accelerazione HW
+    }
+
+    form{
+        width: 60%;
+        height: 60%;
+        margin: 5% auto auto auto;
+        padding: 10px 20px;
+        background-color: #ffffff;
+        position: relative;
+        @include borderRadius(3px);
+        @include boxShadow(0 0 3px #c0c0c0);
+
+        h1{
+            color: #eeeeee;
+            background-color: #555555;
+            margin: 10px -20px 10%;
+            text-align: center;
+            padding: 5px 0;
+            font-size: 1.5rem;
+        }
+
+        input{
+            display: block;
+            margin: auto;
+            padding: 3px 7px;
+            width: 60%;
+            height: 10%;
+            font-size: 1.2rem;
+        }
+
+        button{
+            position: absolute;
+            bottom: 10%;
+            right: 10%;
+            border: none;
+            padding: 7px 10px;
+            background-color: #555555;
+            color: #eeeeee;
+            cursor: pointer;
+            @include borderRadius(3px);
+            @include transition(background-color .7s ease);
+
+            &:hover{
+                background-color: #333333;
+            }
+
+            &:active{
+                @include transform(translate(1px, 1px));
+            }
+        }
+
+    }
+}
+
+
 .myEditor{
     width: 70%;
     margin: auto;
-    @include boxShadow(0 0 3px #222222);
+    @include boxShadow(0 0 3px #c0c0c0);
     @include borderRadius(3px);
 
     &>.myToolbar{

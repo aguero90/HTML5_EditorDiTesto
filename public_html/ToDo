@@ -1,0 +1,41 @@
+
+// STATO DEL PROGETTO
+// =============================================================================
+
+ABBANDONATO poichè ci sono stati parecchi, troppi imprevisti:
+Le specifiche per l'editor di testo sono vaghe e quindi gli browser non si
+comportano in maniera uguale.
+
+Il problema vero, però, è l'inserimento di link e di link e di immagini.
+Per quanto riguarda le immagini il problema principale è il volerle
+ottenere dal server. Quindi servono delle API REST in modo da poter richiedere
+dati tramite AJAX.
+Per quanto riguarda i link quasi tutti i problemi sono stati risolti
+tramite del codice agricolo.
+
+Tuttavia ci sono delle problematiche più generali:
+Nell'editor ogni riga è vista come un elemento appeso al padre. Questo
+elemento può essere un <a>, un <b> oppure un text node.
+Fino a quando si vogliono inglobare gli elementi va tutto bene ( ad esempio
+<b><a>ciao</a></b> ) ma sembra impossibile mettere su una singola riga un elemento
+ed un textNode (ad esempio "ciao <a>link</a> ciao").
+Infatti, la frase nell'esempio verrebbe splittata in 3 righe. La prima
+contenente un textNode, la seconda contenente un elementNode e la terza
+contenente un altro textNode.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

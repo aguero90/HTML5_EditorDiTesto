@@ -1,32 +1,48 @@
 /* global document */
 /* global Element */
 
+// polyfill contains
+if (!String.contains) {
 
-// polyfill add/remove/toggle class
+    String.prototype.contains = function (subString) {
+
+        return this.indexOf(subString) !== -1;
+    };
+}
+
+
+// polyfill add/remove/toggle/has class
 Element.prototype.addClass = function (c) {
+
+    if (this.hasClass(c)) {
+        return;
+    }
+
     if (this.hasAttribute("class")) {
-        if (this.getAttribute("class").indexOf(c) !== -1) {
-            return;
-        }
-        this.setAttribute("class", this.getAttribute("class") + " " + c + " ");
+        this.setAttribute("class", this.getAttribute("class") + c + " ");
     } else {
         this.setAttribute("class", c + " ");
     }
 };
+
 Element.prototype.removeClass = function (c) {
-    if (this.hasAttribute("class") && this.getAttribute("class").indexOf(c) !== -1) {
+
+    if (this.hasClass(c)) {
         var classArray = this.getAttribute("class").split(" ");
         classArray.splice(classArray.indexOf(c), 1);
         var newClass = classArray.join(" ");
         this.setAttribute("class", newClass);
     }
 };
+
 Element.prototype.toggleClass = function (c) {
-    if (this.hasAttribute("class") && this.getAttribute("class").indexOf(c) !== -1) {
-        this.removeClass(c);
-    } else {
-        this.addClass(c);
-    }
+
+    this.hasClass(c) ? this.removeClass(c) : this.addClass(c);
+};
+
+Element.prototype.hasClass = function (c) {
+
+    return this.hasAttribute("class") && this.getAttribute("class").contains(c);
 };
 
 
@@ -35,12 +51,13 @@ var myEditor = function () {
 };
 
 myEditor.prototype = {
+    selection: {},
+    range: null,
+    imageSelectionPopup: null,
+    linkInsertPopup: null,
     /**
      * Si limita a creare un editor di testo per ogni elemento che nel
      * DOM ha classe ".myEditor".
-     *
-     *
-     * @returns {undefined}
      */
     init: function () {
 
@@ -53,6 +70,9 @@ myEditor.prototype = {
             DOMElements[i].appendChild(this.createMyToolbar());
             DOMElements[i].appendChild(this.createMyEditorTextArea());
         }
+
+        this.createImageSelectionPopup();
+        this.createLinkInsertPopup();
     },
     /**
      * Crea la toolbar.
@@ -524,7 +544,7 @@ myEditor.prototype = {
         li.appendChild(span);
         li.addClass("myToolbar_button");
         li.setAttribute("title", "insert image");
-        li.addEventListener("click", this.insertImage);
+        li.addEventListener("click", this.selectImage.bind(this));
         li.onselectstart = function () {
             return false;
         }; // ie
@@ -540,7 +560,7 @@ myEditor.prototype = {
         li.appendChild(span);
         li.addClass("myToolbar_button");
         li.setAttribute("title", "insert link");
-        li.addEventListener("click", this.insertLink);
+        li.addEventListener("click", this.selectLink.bind(this));
         li.onselectstart = function () {
             return false;
         }; // ie
@@ -599,6 +619,171 @@ myEditor.prototype = {
 
         return myEditorTextArea;
     },
+    /**
+     * crea una struttura del tipo
+     *
+     * <div id="imageSelectionPopup">
+     *      <form>
+     *          <input type="url" placeholder="http://url_img.png" />
+     *          <button>Inserisci</button>
+     *      </form>
+     * </div>
+     *
+     *
+     */
+    createImageSelectionPopup: function () {
+
+        var form;
+        var formElement;
+
+        this.imageSelectionPopup = document.createElement("div");
+        this.imageSelectionPopup.setAttribute("id", "imageSelectionPopup");
+
+        form = document.createElement("form");
+        this.imageSelectionPopup.appendChild(form);
+
+        formElement = document.createElement("h1");
+        formElement.innerHTML = "Inserisci l'URL dell'immagine da inserire";
+        form.appendChild(formElement);
+
+        formElement = document.createElement("input");
+        formElement.setAttribute("type", "url");
+        formElement.setAttribute("placeholder", "http://url_img.png");
+        form.appendChild(formElement);
+
+        formElement = document.createElement("button");
+        formElement.innerHTML = "Inserisci";
+
+        var that = this;
+        formElement.addEventListener("click", function (e) {
+
+            e.preventDefault(); // per evitare che ricarichi la pagina
+
+            var input = document.querySelector("#imageSelectionPopup input");
+
+
+            if (input.value !== "") {
+                that.insertImage(input.value);
+                that.imageSelectionPopup.removeClass("show");
+                input.value = "";
+            } else {
+                // dire che non è stata inserita alcuna URL
+            }
+        });
+
+        form.appendChild(formElement);
+
+        document.body.appendChild(this.imageSelectionPopup);
+
+
+//        PER IL MOMENTO NON SI PUO' FARE POICHE' DOVREI
+//        RICHIEDERE TRAMITE AJAX LE IMMAGINI AL SERVER
+//
+//        var h1;
+//        var container;
+//        var div;
+//
+//
+//
+//        h1 = document.createElement("h1");
+//        h1.innerHTML = "Seleziona l'immagine da inserire";
+//        this.imageSelectionPopup.appendChild(h1);
+//
+//        container = document.createElement("div");
+//        container.addClass("imagesContainer");
+//        this.imageSelectionPopup.appendChild(container);
+//
+//        div = createElement("div");
+//        div.addClass("column");
+//        container.addClass(div);
+//
+//        div = createElement("div");
+//        div.addClass("column");
+//        container.addClass(div);
+//
+//        div = createElement("div");
+//        div.addClass("column");
+//        container.addClass(div);
+//
+//        div = createElement("div");
+//        div.addClass("column");
+//        container.addClass(div);
+
+    },
+    /**
+     * crea una struttura del tipo
+     *
+     * <div id="linkInsertPopup">
+     *      <form>
+     *          <input type="url" placeholder="http://url.com" />
+     *          <button>Inserisci</button>
+     *      </form>
+     * </div>
+     *
+     *
+     */
+    createLinkInsertPopup: function () {
+
+        var form;
+        var formElement;
+
+        this.linkInsertPopup = document.createElement("div");
+        this.linkInsertPopup.setAttribute("id", "linkInsertPopup");
+
+        form = document.createElement("form");
+        this.linkInsertPopup.appendChild(form);
+
+        formElement = document.createElement("h1");
+        formElement.innerHTML = "Inserisci l'URL del link da inserire";
+        form.appendChild(formElement);
+
+        formElement = document.createElement("input");
+        formElement.setAttribute("type", "url");
+        formElement.setAttribute("placeholder", "http://url.com");
+        form.appendChild(formElement);
+
+
+        formElement = document.createElement("button");
+        formElement.innerHTML = "Inserisci";
+
+        var buttonPressed = function (e) {
+
+            e.preventDefault(); // per evitare che ricarichi la pagina
+
+            var input = document.querySelector("#linkInsertPopup input");
+
+            if (input.value !== "") {
+                this.insertLink(input.value);
+                this.linkInsertPopup.removeClass("show");
+                input.value = "";
+            } else {
+                // dire che non ha inserito il testo
+            }
+        };
+
+        formElement.addEventListener("click", buttonPressed.bind(this));
+
+        form.appendChild(formElement);
+
+        document.body.appendChild(this.linkInsertPopup);
+    },
+    copySelection: function () {
+        this.selection.anchorNode = window.getSelection().anchorNode;
+        this.selection.anchorOffset = window.getSelection().anchorOffset;
+        this.selection.focusNode = window.getSelection().focusNode;
+        this.selection.focusOffset = window.getSelection().focusOffset;
+        this.selection.isCollapsed = window.getSelection().isCollapsed;
+        this.selection.rangeCount = window.getSelection().rangeCount;
+    },
+    restorePreviousSelect: function () {
+        if (window.getSelection && document.createRange) {
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(this.range);
+        } else if (document.selection && document.body.createTextRange) {
+            this.range.select();
+        }
+    },
     bold: function () {
         document.execCommand('bold');
     },
@@ -620,8 +805,61 @@ myEditor.prototype = {
     foregroundColor: function () {
         document.execCommand('forecolor', false, '#00FF00');
     },
-    insertLink: function () {
-        document.execCommand('createlink', false, 'http://www.google.it');
+    selectLink: function () {
+
+        debugger;
+
+        this.copySelection();
+        this.range = window.getSelection().getRangeAt(0);
+        this.linkInsertPopup.addClass("show");
+    },
+    insertLink: function (url) {
+
+        debugger;
+
+        if (this.selection.isCollapsed) {
+            // allora non è stato selezionato nulla ed inserisco io
+            // come testo il link
+
+
+
+            if (this.selection.anchorNode.hasClass && this.selection.anchorNode.hasClass("myEditorTextArea")) {
+                // allora vuol dire che il cursore è su una nuova
+                // riga oppure non è stato scritto ancora null
+
+                var text = document.createTextNode(url);
+                // mettiamo il nodo di testo creato nell'editor
+                this.selection.anchorNode.appendChild(text);
+
+                // impostiamo il range in modo da poter inserire l'url del link
+                this.range = document.createRange();
+                this.range.setStart(text, 0);
+                this.range.setEnd(text, url.length);
+            } else {
+                // allora vuol dire che il cursore è su una riga su cui è
+                // già stato scritto qualcosa, quindi ho già un nodo di testo
+                // e, poichè non posso inserire un nodo elemento all'interno
+                // di un nodo testo, devo dividere il nodo del testo in due,
+                // creare un nuovo nodo testo, piazzarlo in mezzo ed impostare
+                // la selezione su di lui
+
+                /**
+                 * <NOTA: a quanto pare non si può fare poichè in ogni>
+                 * <riga ci può andare un solo nodo.>
+                 * <Infatti se si prova a mettere un link e dopo a scriverci>
+                 * <prima o dopo, non ti permette di farlo>
+                 */
+
+
+            }
+
+
+
+        }
+
+        this.restorePreviousSelect();
+
+        document.execCommand('createlink', false, url);
     },
     // WARNING: non funziona su chrome!
     // WARNING: non funziona su explorer!
@@ -647,7 +885,7 @@ myEditor.prototype = {
         document.execCommand('formatblock', false, "BLOCKQUOTE");
     },
     /**
-     * fatta a mano poichè non funziona "formatblock" con <CODE> dato che
+     * fatta a mano poichè non funziona "formatblock" con <code> dato che
      * è un elemento inline.
      *
      * Questa funzione semplicemente prende la selezione e si salva il
@@ -660,18 +898,29 @@ myEditor.prototype = {
      */
     code: function () {
 
+        var code = document.createElement("code");
 
         var selection = window.getSelection();
-        var oldNode = selection.focusNode;
-        debugger;
-        if (oldNode.nodeType !== 3) {
-            // se la selezione non è un nodo di testo
-            // probabilmente ho sbagliato la selezione.
-            // quindi non faccio nulla
-            return;
+
+        // il nodo che contiene la selezione
+        // che dovrebbe essere un nodo di testo
+        var oldNode = selection.anchorNode;
+
+        // risalgo la catena dei tag applicati ( <b>, <i> ecc )
+        // fino ad arrivare a quello che non è contenuto in altri tag
+        //
+        // se ad esempio il testo selezionato era "aaaaaa"
+        // ma questo è contenuto in un tag <b>
+        // voglio ottenere
+        //      <code><b>"aaaaaa"</b></code>
+        // e non
+        //      <b><code>"aaaaaa"</code></b>
+        while (!oldNode.parentElement.hasClass("myEditorTextArea")) {
+            oldNode = oldNode.parentElement;
         }
-        var code = document.createElement("code");
-        selection.focusNode.parentNode.replaceChild(code, oldNode);
+
+        // rimpiazzio
+        oldNode.parentElement.replaceChild(code, oldNode);
         code.appendChild(oldNode);
     },
     indent: function () {
@@ -683,7 +932,15 @@ myEditor.prototype = {
     insertHorizontRule: function () {
         document.execCommand('inserthorizontalrule');
     },
+    selectImage: function () {
+        this.copySelection();
+        this.range = window.getSelection().getRangeAt(0);
+        this.imageSelectionPopup.addClass("show");
+    },
     insertImage: function (url) {
+
+        this.restorePreviousSelect();
+
         document.execCommand('insertimage', false, url);
     },
     insertOrderedList: function () {
